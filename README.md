@@ -1,4 +1,21 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# **Finance App**
+
+
+## Overview:
+
+`Finance App` tem como objetivo auxiliar o seu controle financeiro registrando suas despesas de forma clara e direta.
+
+----
+
+## Documentação:
+
+1. [Padrões de Commits](docs/commit-patterns.md)
+2. [Gerenciamento de Branches](/docs/branch-management.md)
+3. [Ferramentas e Dependências](/docs/tools-and-dependencies.md)
+
+
+
+<!-- This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
 
@@ -94,4 +111,4 @@ To learn more about React Native, take a look at the following resources:
 - [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native. -->
