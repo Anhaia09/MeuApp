@@ -5,6 +5,27 @@
 
 `Finance App` tem como objetivo auxiliar o seu controle financeiro registrando suas despesas de forma clara e direta.
 
+## Como executar a aplicação:
+
+> Clone o repositório e Instale as dependências:
+
+```bash
+git clone https://github.com/Anhaia09/MeuApp.git
+cd MeuApp
+npm install ; npm start 
+```
+
+> Abrir a pasta `MeuApp/android` no `Android Studio` ou abra a pasta `MeuApp/ios` no `Xcode`
+
+> Execute a aplicação no emulador:
+
+```bash
+shift + f10
+
+# ou 
+
+Botão Run 
+```
 ----
 
 ## Documentação:
