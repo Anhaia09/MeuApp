@@ -20,8 +20,15 @@ const Home = () => {
     { id: 3, descricao: 'Amazon', valor: 60.0 },
   ]);
 
+  const dadosUsuario = {
+    nome: 'Luana',
+    email: 'user@gmail.com',
+    telefone: '(15) 99842-6887',
+  }
+
   // Estado para controlar a visibilidade do modal
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
 
   // Estados para armazenar os valores dos campos do formulário de nova despesa
   const [novaDescricao, setNovaDescricao] = useState('');
@@ -69,7 +76,9 @@ const Home = () => {
     <View style={styles.container}>
       {/* ScrollView para garantir que o conteúdo seja rolável */}
       <ScrollView contentContainerStyle={{paddingBottom: 100}}>
+
         {/* Cabeçalho com imagem do usuário e título */}
+      <TouchableOpacity onPress={() => setModalUsuarioVisible(true)}>
         <View style={styles.header}>
           <Image
             source={{
@@ -79,6 +88,34 @@ const Home = () => {
           />
           <Text style={styles.titulo}>Bem-vindo</Text>
         </View>
+      </TouchableOpacity>
+
+       {/* Modal para detalhes do usuário */}
+        <Modal animationType="slide" transparent={true} visible={modalUsuarioVisible}>
+                <View style={styles.modalContainerUsuario}>
+                  <View style={styles.modalContentUsuario}>
+                    <Text style={styles.modalTituloUsuario}>Perfil</Text>
+                      <View style={styles.modalDetalhesUsuario}>
+                        <Text style={styles.modalDescricaoUsuario}>
+                          <Text style={styles.negrito}>👤 Nome:</Text> {dadosUsuario.nome}
+                        </Text>
+                        <Text style={styles.modalDescricaoUsuario}>
+                          <Text style={styles.negrito}>✉️ E-mail:</Text> {dadosUsuario.email}
+                        </Text>
+                        <Text style={styles.modalDescricaoUsuario}>
+                          <Text style={styles.negrito}>📲 Telefone:</Text> {dadosUsuario.telefone}
+                        </Text>
+                      </View>
+                    {/* Botão sempre no final */}
+                    <TouchableOpacity
+                style={styles.botaoFecharUsuario}
+                onPress={() => setModalUsuarioVisible(false)}
+              >
+                <Text style={styles.botaoFecharTextoUsuario}>Fechar</Text>
+              </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
 
         {/* Cartão do usuário, exibindo saldo e informações do cartão */}
         <View style={styles.cartaoContainer}>
@@ -221,6 +258,66 @@ const styles = StyleSheet.create({
     position: 'absolute', // Posiciona a imagem de forma absoluta
     bottom: 1, // Distância do fundo
     right: 10, // Distância da direita
+  },
+  modalContainerUsuario: {
+    flex: 1, // Ocupa toda a tela
+    backgroundColor: 'rgba(0,0,0,0.5)', // Fundo semi-transparente escuro
+    justifyContent: 'center', // Centraliza o modal verticalmente
+    alignItems: 'center', // Centraliza o modal horizontalmente
+  },
+
+  // Estilo do conteúdo dentro do modal
+  modalContentUsuario: {
+    backgroundColor: '#FFF', // Fundo branco
+    width: '85%', // Define a largura do modal
+    padding: 20, // Espaçamento interno
+    borderRadius: 12, // Bordas arredondadas
+    alignItems: 'center', // Centraliza os itens horizontalmente
+  },
+
+  // Estilo do título dentro do modal
+  modalTituloUsuario: {
+    fontSize: 22, // Tamanho da fonte grande
+    fontWeight: 'bold', // Negrito para destaque
+    color: '#2C3E50', // Azul escuro para manter a identidade visual
+    marginBottom: 40, // Espaçamento abaixo do título
+  },
+
+  // Estilo dos detalhes do modal
+  modalDetalhesUsuario: {
+    width: '100%', // Ocupa toda a largura disponível
+    alignItems: 'flex-start', // Alinha os textos à esquerda
+    marginBottom: 20, // Espaço entre os detalhes e o botão
+  },
+
+  // Estilo da descrição dentro do modal
+  modalDescricaoUsuario: {
+    fontSize: 16, // Tamanho adequado para leitura
+    color: '#7F8C8D', // Cinza escuro para diferenciação
+    marginBottom: 30, // Espaço entre as descrições
+  },
+
+  // Estilo para textos destacados em negrito
+  negrito: {
+    fontWeight: 'bold', // Deixa o texto em negrito
+    color: '#2C3E50', // Mantém o azul escuro para contraste
+  },
+
+  // Estilização do botão de fechar dentro do modal
+  botaoFecharUsuario: {
+    width: '100%', // Ocupa toda a largura disponível
+    backgroundColor: '#8e43fb', // Vermelho para destacar a ação de fechar
+    paddingVertical: 12, // Espaçamento interno vertical
+    borderRadius: 8, // Bordas arredondadas
+    alignItems: 'center', // Centraliza o texto dentro do botão
+    marginTop: 10, // Espaçamento superior
+  },
+
+  // Estilização do texto dentro do botão de fechar
+  botaoFecharTextoUsuario: {
+    color: '#FFF', // Texto branco para contraste
+    fontSize: 16, // Tamanho adequado para leitura
+    fontWeight: 'bold', // Negrito para melhor visualização
   },
   cartaoContainer: {
     backgroundColor: '#8e43fb', // Cor de fundo do cartão
