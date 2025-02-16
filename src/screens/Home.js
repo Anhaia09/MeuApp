@@ -24,7 +24,7 @@ const Home = () => {
     nome: 'Luana',
     email: 'user@gmail.com',
     telefone: '(15) 99842-6887',
-  }
+  };
 
   // Estado para controlar a visibilidade do modal
   const [modalVisible, setModalVisible] = useState(false);
@@ -144,12 +144,20 @@ const Home = () => {
         </View>
       </ScrollView>
 
-      {/* Botão flutuante para adicionar despesas */}
+    <View style={styles.buttonArea}>
+        {/* Botão flutuante para adicionar despesas */}
+        <TouchableOpacity
+        style={styles.botaoAdicionar}
+        onPress={() => setModalVisible(true)}>
+        <Text style={styles.botaoAdicionarTexto}>+</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.botaoAdicionar}
         onPress={() => setModalVisible(true)}>
         <Text style={styles.botaoAdicionarTexto}>+</Text>
       </TouchableOpacity>
+    </View>
 
       {/* Modal para adicionar nova despesa */}
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -391,7 +399,6 @@ const styles = StyleSheet.create({
   },
 
   botaoAdicionar: {
-    position: 'absolute', // Posiciona o botão de forma absoluta na tela
     bottom: 100, // Define a distância de 100 pixels a partir da parte inferior
     right: 20, // Define a distância de 20 pixels a partir da direita
     backgroundColor: '#8e43fb', // Cor de fundo do botão (roxo)
@@ -400,6 +407,14 @@ const styles = StyleSheet.create({
     borderRadius: 30, // Torna o botão circular (metade da largura/altura)
     justifyContent: 'center', // Centraliza o conteúdo verticalmente
     alignItems: 'center', // Centraliza o conteúdo horizontalmente
+    flex: 1, // Faz o texto ocupar todo o espaço disponível
+  },
+
+  buttonArea: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',  // Garante que o container ocupa toda a largura da tela
   },
 
   botaoAdicionarTexto: {
@@ -483,6 +498,7 @@ const styles = StyleSheet.create({
     width: 60, // Largura do ícone do cartão
     height: 60, // Altura do ícone do cartão
   },
+
 });
 
 export default Home;
