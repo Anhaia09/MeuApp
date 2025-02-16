@@ -78,3 +78,19 @@ yarn-error.log
 *.apk
 *.dm
 output-metadata.json
+
+# Diretórios do Android
+
+android/app/src/main/res/drawable-mdpi/
+android/app/src/main/res/drawable-xhdpi/
+android/app/src/main/res/drawable-xxhdpi/
+android/app/src/main/res/drawable-xxxhdpi/
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/local.properties
+android/app/src/main/assets/
+
+#vscode
+.vscode/
