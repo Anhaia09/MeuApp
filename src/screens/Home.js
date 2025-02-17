@@ -1,15 +1,25 @@
 import React, {useState} from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, TextInput} from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, TextInput, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 // Dados fictícios do cartão do usuário
-const dadosCartao = {
-  nome: 'JOSÉ ALMEIDA LIMA ',
-  numeroCartao: '01/2035',
-  saldo: 400,
-};
+
 
 const Home = () => {
+    // Estado para controlar a visibilidade do modal
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalDepositoVisible, setModalDepositoVisible] = useState(false);
+    const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
+
+    // Estados para armazenar os valores dos campos do formulário de nova despesa
+    const [novaDescricao, setNovaDescricao] = useState('');
+    const [novoValor, setNovoValor] = useState('');
+    const [novaData, setNovaData] = useState('');
+    const [novoEstabelecimento, setNovoEstabelecimento] = useState('');
+    const [novoMetodoPagamento, setNovoMetodoPagamento] = useState('');
+    const [saldo, setSaldo] = useState(600);
+
+
   // Hook para navegação entre telas
   const navigation = useNavigation();
 
@@ -24,18 +34,13 @@ const Home = () => {
     nome: 'Luana',
     email: 'user@gmail.com',
     telefone: '(15) 99842-6887',
-  }
+  };
 
-  // Estado para controlar a visibilidade do modal
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
-
-  // Estados para armazenar os valores dos campos do formulário de nova despesa
-  const [novaDescricao, setNovaDescricao] = useState('');
-  const [novoValor, setNovoValor] = useState('');
-  const [novaData, setNovaData] = useState('');
-  const [novoEstabelecimento, setNovoEstabelecimento] = useState('');
-  const [novoMetodoPagamento, setNovoMetodoPagamento] = useState('');
+  const dadosCartao = {
+    nome: 'JOSÉ ALMEIDA LIMA ',
+    numeroCartao: '01/2035',
+    saldo: saldo,
+  };
 
   // Função para adicionar uma nova despesa
   const adicionarDespesa = () => {
@@ -70,6 +75,24 @@ const Home = () => {
       // Fecha o modal
       setModalVisible(false);
     }
+  };
+
+  // Função para adicionar depósito
+  const adicionarDeposito = () => {
+    // Verifica se o valor é um número e maior que zero
+
+    const valor = parseFloat(novoValor);
+
+    if (isNaN(valor) || valor <= 0) {
+      Alert.alert('Valor inválido', 'Por favor, insira um número maior que zero.');
+      setNovoValor('');  // Limpa o campo
+      return;
+    }
+
+    // Se o valor for válido, atualiza o saldo
+    setSaldo(saldo + valor);
+    setNovoValor('');  // Limpa o campo
+    setModalDepositoVisible(false);  // Fecha o modal (se aplicável)
   };
 
   return (
@@ -115,7 +138,7 @@ const Home = () => {
               </TouchableOpacity>
                   </View>
                 </View>
-              </Modal>
+        </Modal>
 
         {/* Cartão do usuário, exibindo saldo e informações do cartão */}
         <View style={styles.cartaoContainer}>
@@ -144,10 +167,16 @@ const Home = () => {
         </View>
       </ScrollView>
 
-      {/* Botão flutuante para adicionar despesas */}
+      {/* Botão flutuante para adicionar despesas e fazer depósito*/}
       <TouchableOpacity
         style={styles.botaoAdicionar}
         onPress={() => setModalVisible(true)}>
+        <Text style={styles.botaoAdicionarTexto}>-</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.botaoAdicionarDeposito}
+        onPress={() => setModalDepositoVisible(true)}>
         <Text style={styles.botaoAdicionarTexto}>+</Text>
       </TouchableOpacity>
 
@@ -200,6 +229,36 @@ const Home = () => {
             <TouchableOpacity
               style={styles.botaoFechar}
               onPress={() => setModalVisible(false)}>
+              <Text style={styles.botaoFecharTexto}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal para adicionar novo depósito */}
+      <Modal animationType="slide" transparent={true} visible={modalDepositoVisible}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitulo}>Realizar Depósito</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Valor (R$)"
+              placeholderTextColor="#7F8C8D"
+              keyboardType="numeric"
+              value={novoValor}
+              onChangeText={setNovoValor}
+            />
+
+            <TouchableOpacity
+              style={styles.botaoSalvar}
+              onPress={adicionarDeposito}>
+              <Text style={styles.botaoSalvarTexto}>Salvar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.botaoFechar}
+              onPress={() => setModalDepositoVisible(false)}>
               <Text style={styles.botaoFecharTexto}>Fechar</Text>
             </TouchableOpacity>
           </View>
@@ -400,6 +459,20 @@ const styles = StyleSheet.create({
     borderRadius: 30, // Torna o botão circular (metade da largura/altura)
     justifyContent: 'center', // Centraliza o conteúdo verticalmente
     alignItems: 'center', // Centraliza o conteúdo horizontalmente
+    flex: 1, // Faz o texto ocupar todo o espaço disponível
+  },
+
+  botaoAdicionarDeposito: {
+    position: 'absolute', // Posiciona o botão de forma absoluta na tela
+    bottom: 100, // Define a distância de 100 pixels a partir da parte inferior
+    left: 20, // Define a distância de 20 pixels a partir da direita
+    backgroundColor: '#8e43fb', // Cor de fundo do botão (roxo)
+    width: 60, // Define a largura do botão como 60 pixels
+    height: 60, // Define a altura do botão como 60 pixels
+    borderRadius: 30, // Torna o botão circular (metade da largura/altura)
+    justifyContent: 'center', // Centraliza o conteúdo verticalmente
+    alignItems: 'center', // Centraliza o conteúdo horizontalmente
+    flex: 1, // Faz o texto ocupar todo o espaço disponível
   },
 
   botaoAdicionarTexto: {
@@ -483,6 +556,7 @@ const styles = StyleSheet.create({
     width: 60, // Largura do ícone do cartão
     height: 60, // Altura do ícone do cartão
   },
+
 });
 
 export default Home;
