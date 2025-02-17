@@ -64,5 +64,4 @@ graph TD
     D -->|Resposta| C
     C -->|JSON ou Callbacks| B
     B -->|Atualiza UI| A
-
 ```
