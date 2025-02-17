@@ -1,24 +1,23 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
+import { SaldoContext } from '../contexts/SaldoContext';
 import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, TextInput, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import AdicionarDespesaModal from '../components/modals/AdicionarDespesaModal';
+import AdicionarDepositoModal from '../components/modals/AdicionarDepositoModal';
 
 // Dados fictícios do cartão do usuário
-
 
 const Home = () => {
     // Estado para controlar a visibilidade do modal
     const [modalVisible, setModalVisible] = useState(false);
-    const [modalDepositoVisible, setModalDepositoVisible] = useState(false);
     const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
+    const [modalDepositoVisible, setModalDepositoVisible] = useState(false);
 
-    // Estados para armazenar os valores dos campos do formulário de nova despesa
-    const [novaDescricao, setNovaDescricao] = useState('');
-    const [novoValor, setNovoValor] = useState('');
-    const [novaData, setNovaData] = useState('');
-    const [novoEstabelecimento, setNovoEstabelecimento] = useState('');
-    const [novoMetodoPagamento, setNovoMetodoPagamento] = useState('');
-    const [saldo, setSaldo] = useState(600);
+    const { saldo } = useContext(SaldoContext);
 
+    const adicionarDespesa = (novaDespesa) => {
+      setDespesas([...despesas, novaDespesa]);
+    };
 
   // Hook para navegação entre telas
   const navigation = useNavigation();
@@ -27,7 +26,6 @@ const Home = () => {
   const [despesas, setDespesas] = useState([
     { id: 1, descricao: 'Shopee', valor: 70 },
     { id: 2, descricao: 'Ifood', valor: 25.5 },
-    { id: 3, descricao: 'Amazon', valor: 60.0 },
   ]);
 
   const dadosUsuario = {
@@ -40,59 +38,6 @@ const Home = () => {
     nome: 'JOSÉ ALMEIDA LIMA ',
     numeroCartao: '01/2035',
     saldo: saldo,
-  };
-
-  // Função para adicionar uma nova despesa
-  const adicionarDespesa = () => {
-    // Verifica se todos os campos foram preenchidos antes de adicionar a despesa
-    if (
-      novaDescricao &&
-      novoValor &&
-      novaData &&
-      novoEstabelecimento &&
-      novoMetodoPagamento
-    ) {
-      // Cria um novo objeto de despesa com os dados fornecidos
-      const novaDespesa = {
-        id: despesas.length + 1, // Define um ID único baseado no tamanho do array
-        descricao: novaDescricao,
-        valor: parseFloat(novoValor), // Converte o valor para número
-        data: novaData,
-        estabelecimento: novoEstabelecimento,
-        metodoPagamento: novoMetodoPagamento,
-      };
-
-      // Atualiza o estado das despesas, adicionando a nova despesa ao array
-      setDespesas([...despesas, novaDespesa]);
-
-      // Limpa os campos do formulário após a adição da despesa
-      setNovaDescricao('');
-      setNovoValor('');
-      setNovaData('');
-      setNovoEstabelecimento('');
-      setNovoMetodoPagamento('');
-
-      // Fecha o modal
-      setModalVisible(false);
-    }
-  };
-
-  // Função para adicionar depósito
-  const adicionarDeposito = () => {
-    // Verifica se o valor é um número e maior que zero
-
-    const valor = parseFloat(novoValor);
-
-    if (isNaN(valor) || valor <= 0) {
-      Alert.alert('Valor inválido', 'Por favor, insira um número maior que zero.');
-      setNovoValor('');  // Limpa o campo
-      return;
-    }
-
-    // Se o valor for válido, atualiza o saldo
-    setSaldo(saldo + valor);
-    setNovoValor('');  // Limpa o campo
-    setModalDepositoVisible(false);  // Fecha o modal (se aplicável)
   };
 
   return (
@@ -181,62 +126,11 @@ const Home = () => {
       </TouchableOpacity>
 
       {/* Modal para adicionar nova despesa */}
-      <Modal animationType="slide" transparent={true} visible={modalVisible}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitulo}>Nova Despesa</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Despesa"
-              placeholderTextColor="#7F8C8D"
-              value={novaDescricao}
-              onChangeText={setNovaDescricao}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Valor (R$)"
-              placeholderTextColor="#7F8C8D"
-              keyboardType="numeric"
-              value={novoValor}
-              onChangeText={setNovoValor}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Data"
-              placeholderTextColor="#7F8C8D"
-              value={novaData}
-              onChangeText={setNovaData}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Estabelecimento"
-              placeholderTextColor="#7F8C8D"
-              value={novoEstabelecimento}
-              onChangeText={setNovoEstabelecimento}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Método de pagamento"
-              placeholderTextColor="#7F8C8D"
-              value={novoMetodoPagamento}
-              onChangeText={setNovoMetodoPagamento}
-            />
-            <TouchableOpacity
-              style={styles.botaoSalvar}
-              onPress={adicionarDespesa}>
-              <Text style={styles.botaoSalvarTexto}>Salvar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.botaoFechar}
-              onPress={() => setModalVisible(false)}>
-              <Text style={styles.botaoFecharTexto}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <AdicionarDespesaModal modalVisible={modalVisible} setModalVisible={setModalVisible} adicionarDespesa={adicionarDespesa}></AdicionarDespesaModal>
 
       {/* Modal para adicionar novo depósito */}
-      <Modal animationType="slide" transparent={true} visible={modalDepositoVisible}>
+      <AdicionarDepositoModal modalDepositoVisible={modalDepositoVisible} setModalDepositoVisible={setModalDepositoVisible}></AdicionarDepositoModal>
+      {/* <Modal animationType="slide" transparent={true} visible={modalDepositoVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitulo}>Realizar Depósito</Text>
@@ -263,7 +157,7 @@ const Home = () => {
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </Modal> */}
 
       {/* Rodapé fixo na parte inferior da tela */}
       <View style={styles.footer}>
@@ -478,62 +372,6 @@ const styles = StyleSheet.create({
   botaoAdicionarTexto: {
     color: '#fff', // Define a cor do texto como branco
     fontSize: 30, // Define o tamanho da fonte como 30 pixels (corrigindo erro de digitação)
-    fontWeight: 'bold', // Define o texto em negrito
-  },
-
-  modalContainer: {
-    flex: 1, // Ocupa toda a tela disponível
-    backgroundColor: 'rgba(0,0,0,0.5)', // Fundo escuro semi-transparente para efeito de sobreposição
-    justifyContent: 'center', // Centraliza o modal verticalmente
-    alignItems: 'center', // Centraliza o modal horizontalmente
-  },
-
-  modalContent: {
-    backgroundColor: '#FFF', // Define o fundo do modal como branco
-    width: '80%', // Define a largura do modal como 80% da tela
-    padding: 20, // Adiciona espaçamento interno de 20 pixels
-    borderRadius: 12, // Arredonda as bordas do modal
-    alignItems: 'center', // Centraliza os itens dentro do modal horizontalmente
-  },
-
-  modalTitulo: {
-    marginTop: 10, // Adiciona margem superior de 10 pixels
-    fontSize: 22, // Define o tamanho da fonte como 22 pixels
-    fontWeight: 'bold', // Define o texto em negrito
-    color: '#2C3E50', // Define a cor do texto (tom de azul escuro)
-    marginBottom: 10, // Adiciona margem inferior de 10 pixels
-  },
-
-  input: {
-    width: '100%', // Define a largura do input para ocupar todo o espaço disponível
-    padding: 10, // Adiciona espaçamento interno de 10 pixels
-    borderWidth: 1, // Define uma borda de 1 pixel
-    borderColor: '#E0E0E0', // Define a cor da borda como cinza claro
-    borderRadius: 8, // Arredonda as bordas do input
-    marginBottom: 20, // Adiciona margem inferior de 20 pixels
-    fontSize: 16, // Define o tamanho da fonte como 16 pixels
-  },
-
-  botaoSalvar: {
-    backgroundColor: '#8e43fb', // Define a cor de fundo do botão como roxo
-    paddingVertical: 10, // Define um espaçamento interno vertical de 10 pixels
-    paddingHorizontal: 25, // Define um espaçamento interno horizontal de 25 pixels
-    borderRadius: 8, // Arredonda as bordas do botão
-  },
-
-  botaoSalvarTexto: {
-    color: '#FFF', // Define a cor do texto como branco
-    fontSize: 16, // Define o tamanho da fonte como 16 pixels
-    fontWeight: 'bold', // Define o texto em negrito
-  },
-
-  botaoFechar: {
-    marginTop: 10, // Adiciona margem superior de 10 pixels
-  },
-
-  botaoFecharTexto: {
-    color: '#E74C3C', // Define a cor do texto como vermelho (cor de alerta)
-    fontSize: 16, // Define o tamanho da fonte como 16 pixels
     fontWeight: 'bold', // Define o texto em negrito
   },
 
