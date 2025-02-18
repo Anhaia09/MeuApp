@@ -1,4 +1,5 @@
 import React, {useState, useContext} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SaldoContext } from '../contexts/SaldoContext';
 import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
@@ -15,9 +16,20 @@ const Home = () => {
 
     const { saldo } = useContext(SaldoContext);
 
-    const adicionarDespesa = (novaDespesa) => {
-      setDespesas([...despesas, novaDespesa]);
-    };
+    const adicionarDespesa = async (novaDespesa) => {
+      
+      try {
+          const existingExpenses = JSON.parse(await AsyncStorage.getItem('expenses')) || [];
+          
+          const updatedExpenses = [...existingExpenses, novaDespesa];
+  
+          await AsyncStorage.setItem('expenses', JSON.stringify(updatedExpenses));
+
+      } catch (error) {
+          console.error('Erro ao acessar o AsyncStorage:', error.message);
+      }
+  };
+  
 
   // Hook para navegação entre telas
   const navigation = useNavigation();

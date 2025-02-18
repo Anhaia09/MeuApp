@@ -1,40 +1,77 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Image, FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Image,
+  FlatList,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Histórico de despesas (dados fictícios)
-const despesas = [
-  { id: 1, descricao: 'Shopee', valor: 70.0, data: '10/02/2024', estabelecimento: 'Shopee Online', metodo: 'Crédito' },
-  { id: 2, descricao: 'iFood', valor: 25.5, data: '09/02/2024', estabelecimento: 'McDonald’s', metodo: 'PIX' },
-  { id: 3, descricao: 'Amazon', valor: 60.0, data: '08/02/2024', estabelecimento: 'Amazon Brasil', metodo: 'Débito' },
-];
-
-const History = ({ navigation }) => {
+const History = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [despesaSelecionada, setDespesaSelecionada] = useState(null);
+  const [despesas, setDespesas] = useState([]);
 
-  const abrirDetalhes = (despesa) => {
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const storedExpenses =
+          JSON.parse(await AsyncStorage.getItem('expenses')) || [];
+        setDespesas(prevDespesas => [
+          ...prevDespesas, // Valores anteriores
+          ...storedExpenses, // Dados do AsyncStorage
+        ]);
+      } catch (error) {
+        console.error('Erro ao acessar o AsyncStorage:', error);
+      }
+    };
+
+    fetchExpenses();
+  }, []);
+
+  const abrirDetalhes = despesa => {
     setDespesaSelecionada(despesa);
     setModalVisible(true);
+  };
+
+  const limparDespesas = async () => {
+    try {
+      await AsyncStorage.removeItem('expenses'); // Remove os dados do AsyncStorage
+      setDespesas([]); // Atualiza o estado para um array vazio
+      console.log('Despesas limpas com sucesso!');
+    } catch (error) {
+      console.error('Erro ao limpar despesas:', error);
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Histórico de Despesas</Text>
 
+      {/* Botão para limpar despesas */}
+      <TouchableOpacity style={styles.botaoLimpar} onPress={limparDespesas}>
+        <Text style={styles.botaoLimparTexto}>Limpar Despesas</Text>
+      </TouchableOpacity>
+
       {/* Lista de Despesas */}
       <FlatList
         data={despesas}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listaDespesas}
-        renderItem={({ item }) => (
+        style={styles.lista}
+        renderItem={({item}) => (
           <TouchableOpacity
             style={styles.cardDespesa}
             onPress={() => abrirDetalhes(item)}
-            activeOpacity={0.8}
-          >
+            activeOpacity={0.8}>
             <View style={styles.cardContent}>
               <Text style={styles.descricaoDespesa}>{item.descricao}</Text>
-              <Text style={styles.valorDespesa}>R$ {item.valor.toFixed(2)}</Text>
+              <Text style={styles.valorDespesa}>
+                R$ {item.valor.toFixed(2)}
+              </Text>
             </View>
           </TouchableOpacity>
         )}
@@ -48,27 +85,30 @@ const History = ({ navigation }) => {
             {despesaSelecionada && (
               <View style={styles.modalDetalhes}>
                 <Text style={styles.modalDescricao}>
-                  <Text style={styles.negrito}>🛒 Despesa:</Text> {despesaSelecionada.descricao}
+                  <Text style={styles.negrito}>🛒 Despesa:</Text>{' '}
+                  {despesaSelecionada.descricao}
                 </Text>
                 <Text style={styles.modalDescricao}>
-                  <Text style={styles.negrito}>💰 Valor:</Text> R$ {despesaSelecionada.valor.toFixed(2)}
+                  <Text style={styles.negrito}>💰 Valor:</Text> R${' '}
+                  {despesaSelecionada.valor.toFixed(2)}
                 </Text>
                 <Text style={styles.modalDescricao}>
-                  <Text style={styles.negrito}>📅 Data:</Text> {despesaSelecionada.data}
+                  <Text style={styles.negrito}>📅 Data:</Text>{' '}
+                  {despesaSelecionada.data}
                 </Text>
                 <Text style={styles.modalDescricao}>
-                  <Text style={styles.negrito}>🏬 Estabelecimento:</Text> {despesaSelecionada.estabelecimento}
+                  <Text style={styles.negrito}>🏬 Estabelecimento:</Text>{' '}
+                  {despesaSelecionada.estabelecimento}
                 </Text>
                 <Text style={styles.modalDescricao}>
-                  <Text style={styles.negrito}>💳 Método de Pagamento:</Text> {despesaSelecionada.metodo}
+                  <Text style={styles.negrito}>💳 Método de Pagamento:</Text>{' '}
+                  {despesaSelecionada.metodo}
                 </Text>
               </View>
             )}
-            {/* Botão sempre no final */}
             <TouchableOpacity
               style={styles.botaoFechar}
-              onPress={() => setModalVisible(false)}
-            >
+              onPress={() => setModalVisible(false)}>
               <Text style={styles.botaoFecharTexto}>Fechar</Text>
             </TouchableOpacity>
           </View>
@@ -98,136 +138,126 @@ const History = ({ navigation }) => {
   );
 };
 
-// Estilos
+// Estilos (mantidos iguais)
 const styles = StyleSheet.create({
-  // Estilização do container principal da tela
   container: {
-    flex: 1, // Ocupa todo o espaço disponível na tela
-    backgroundColor: '#fff', // Cor de fundo da tela
-    padding: 20, // Espaçamento interno da tela
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
   },
-  // Estilização do título principal
+  listaDespesas: {
+    paddingBottom: 100,
+  },
+  lista: {
+    flex: 1,
+  },
   titulo: {
-    fontSize: 28, // Tamanho da fonte grande para destaque
-    fontWeight: 'bold', // Deixa o texto em negrito
-    color: '#2C3E50', // Cor azul escuro para contraste
-    marginBottom: 20, // Espaçamento abaixo do título
-    marginTop: 20, // Espaçamento acima do título
-  },
-
-  // Estilização do card de cada despesa
-  cardDespesa: {
-    backgroundColor: '#F8F9FA', // Fundo levemente acinzentado para melhor visualização
-    width: '92%', // Define a largura do card
-    borderRadius: 15, // Bordas arredondadas
-    paddingVertical: 18, // Espaçamento interno vertical
-    paddingHorizontal: 20, // Espaçamento interno horizontal
-    marginBottom: 30, // Espaço entre os cards
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 20,
     marginTop: 20,
   },
-
-  // Estilo para o conteúdo dentro do card de despesa
+  cardDespesa: {
+    backgroundColor: '#F8F9FA',
+    width: '92%',
+    borderRadius: 15,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    marginBottom: 30,
+    marginTop: 20,
+  },
   cardContent: {
-    flexDirection: 'row', // Organiza os itens lado a lado
-    justifyContent: 'space-between', // Distribui os elementos igualmente
-    alignItems: 'center', // Alinha os itens ao centro
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-
-  // Estilização da descrição da despesa
   descricaoDespesa: {
-    fontSize: 17, // Tamanho da fonte
-    fontWeight: '600', // Semibold (entre normal e bold)
-    color: '#2C3E50', // Azul escuro para contraste
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#2C3E50',
   },
-
-  // Estilização do valor da despesa
   valorDespesa: {
-    fontSize: 18, // Tamanho da fonte um pouco maior para destaque
-    fontWeight: 'bold', // Deixa em negrito
-    color: '#E74C3C', // Vermelho vibrante para chamar atenção ao valor
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E74C3C',
   },
-
-  // Estilização do modal (pop-up)
   modalContainer: {
-    flex: 1, // Ocupa toda a tela
-    backgroundColor: 'rgba(0,0,0,0.5)', // Fundo semi-transparente escuro
-    justifyContent: 'center', // Centraliza o modal verticalmente
-    alignItems: 'center', // Centraliza o modal horizontalmente
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-
-  // Estilo do conteúdo dentro do modal
   modalContent: {
-    backgroundColor: '#FFF', // Fundo branco
-    width: '85%', // Define a largura do modal
-    padding: 20, // Espaçamento interno
-    borderRadius: 12, // Bordas arredondadas
-    alignItems: 'center', // Centraliza os itens horizontalmente
+    backgroundColor: '#FFF',
+    width: '85%',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
   },
-
-  // Estilo do título dentro do modal
   modalTitulo: {
-    fontSize: 22, // Tamanho da fonte grande
-    fontWeight: 'bold', // Negrito para destaque
-    color: '#2C3E50', // Azul escuro para manter a identidade visual
-    marginBottom: 40, // Espaçamento abaixo do título
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 40,
   },
-
-  // Estilo dos detalhes do modal
   modalDetalhes: {
-    width: '100%', // Ocupa toda a largura disponível
-    alignItems: 'flex-start', // Alinha os textos à esquerda
-    marginBottom: 20, // Espaço entre os detalhes e o botão
+    width: '100%',
+    alignItems: 'flex-start',
+    marginBottom: 20,
   },
-
-  // Estilo da descrição dentro do modal
   modalDescricao: {
-    fontSize: 16, // Tamanho adequado para leitura
-    color: '#7F8C8D', // Cinza escuro para diferenciação
-    marginBottom: 30, // Espaço entre as descrições
+    fontSize: 16,
+    color: '#7F8C8D',
+    marginBottom: 30,
   },
-
-  // Estilo para textos destacados em negrito
   negrito: {
-    fontWeight: 'bold', // Deixa o texto em negrito
-    color: '#2C3E50', // Mantém o azul escuro para contraste
+    fontWeight: 'bold',
+    color: '#2C3E50',
   },
-
-  // Estilização do botão de fechar dentro do modal
   botaoFechar: {
-    width: '100%', // Ocupa toda a largura disponível
-    backgroundColor: '#8e43fb', // Vermelho para destacar a ação de fechar
-    paddingVertical: 12, // Espaçamento interno vertical
-    borderRadius: 8, // Bordas arredondadas
-    alignItems: 'center', // Centraliza o texto dentro do botão
-    marginTop: 10, // Espaçamento superior
+    width: '100%',
+    backgroundColor: '#8e43fb',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
   },
-
-  // Estilização do texto dentro do botão de fechar
   botaoFecharTexto: {
-    color: '#FFF', // Texto branco para contraste
-    fontSize: 16, // Tamanho adequado para leitura
-    fontWeight: 'bold', // Negrito para melhor visualização
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-
-  // Estilização do rodapé da tela
   footer: {
-    position: 'absolute', // Fixa o rodapé na parte inferior
-    bottom: 0, // Posiciona no final da tela
-    width: '100%', // Ocupa toda a largura
-    flexDirection: 'row', // Alinha os ícones horizontalmente
-    justifyContent: 'space-between', // Espaço entre os ícones
-    alignItems: 'center', // Alinha os ícones verticalmente
-    paddingHorizontal: 40, // Espaçamento lateral
-    paddingVertical: 10, // Espaçamento interno vertical
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 10,
   },
   imagemCasaFooter: {
-    width: 60, // Largura do ícone da casa
-    height: 60, // Altura do ícone da casa
-    marginLeft: 30, // Margem à esquerda do ícone
+    width: 60,
+    height: 60,
+    marginLeft: 30,
   },
   imagemCartaoFooter: {
-    width: 60, // Largura do ícone do cartão
-    height: 60, // Altura do ícone do cartão
+    width: 60,
+    height: 60,
+  },
+  botaoLimpar: {
+    backgroundColor: '#E74C3C', // Vermelho para destacar
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  botaoLimparTexto: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
