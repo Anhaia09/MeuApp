@@ -8,21 +8,28 @@ const AdicionarDepositoModal = ({ modalDepositoVisible, setModalDepositoVisible}
   const { saldo, setSaldo } = useContext(SaldoContext);
 
     // Função para adicionar depósito
-  const adicionarDeposito = () => {
-    // Verifica se o valor é um número e maior que zero
-    const valor = parseFloat(novoValor);
-
-    if (isNaN(valor) || valor <= 0) {
-      Alert.alert('Valor inválido', 'Por favor, insira um número maior que zero.');
+    const adicionarDeposito = () => {
+      // Verifica se a entrada contém apenas números e ponto decimal
+      if (!/^\d+([.,]\d+)?$/.test(novoValor)) {
+        Alert.alert('Valor inválido', 'Por favor, insira um número válido.');
+        setNovoValor('');  // Limpa o campo
+        return;
+      }
+    
+      const valor = parseFloat(novoValor);
+    
+      if (isNaN(valor) || valor <= 0) {
+        Alert.alert('Valor inválido', 'Por favor, insira um número maior que zero.');
+        setNovoValor('');  // Limpa o campo
+        return;
+      }
+    
+      // Se o valor for válido, atualiza o saldo
+      setSaldo(saldo + valor);
       setNovoValor('');  // Limpa o campo
-      return;
-    }
-
-    // Se o valor for válido, atualiza o saldo
-    setSaldo(saldo + valor);
-    setNovoValor('');  // Limpa o campo
-    setModalDepositoVisible(false);  // Fecha o modal (se aplicável)
-  };
+      setModalDepositoVisible(false);  // Fecha o modal (se aplicável)
+    };
+    
 
   return (
     <Modal animationType="slide" transparent={true} visible={modalDepositoVisible}>
