@@ -5,8 +5,8 @@ import { SaldoProvider } from './src/contexts/SaldoContext'; // Importando o con
 const App = () => {
   return (
     <SaldoProvider>
-      <Routes /> {/* Renderizando as rotas */}
-    </SaldoProvider> // Renderizando o contexto de saldo
+      <Routes /> 
+    </SaldoProvider> 
   );
 };
 

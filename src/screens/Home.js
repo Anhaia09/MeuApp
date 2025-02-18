@@ -1,6 +1,6 @@
 import React, {useState, useContext} from 'react';
 import { SaldoContext } from '../contexts/SaldoContext';
-import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal, TextInput, Alert} from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AdicionarDespesaModal from '../components/modals/AdicionarDespesaModal';
 import AdicionarDepositoModal from '../components/modals/AdicionarDepositoModal';
@@ -130,34 +130,6 @@ const Home = () => {
 
       {/* Modal para adicionar novo depósito */}
       <AdicionarDepositoModal modalDepositoVisible={modalDepositoVisible} setModalDepositoVisible={setModalDepositoVisible}></AdicionarDepositoModal>
-      {/* <Modal animationType="slide" transparent={true} visible={modalDepositoVisible}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitulo}>Realizar Depósito</Text>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Valor (R$)"
-              placeholderTextColor="#7F8C8D"
-              keyboardType="numeric"
-              value={novoValor}
-              onChangeText={setNovoValor}
-            />
-
-            <TouchableOpacity
-              style={styles.botaoSalvar}
-              onPress={adicionarDeposito}>
-              <Text style={styles.botaoSalvarTexto}>Salvar</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.botaoFechar}
-              onPress={() => setModalDepositoVisible(false)}>
-              <Text style={styles.botaoFecharTexto}>Fechar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal> */}
 
       {/* Rodapé fixo na parte inferior da tela */}
       <View style={styles.footer}>

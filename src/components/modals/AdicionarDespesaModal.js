@@ -13,7 +13,6 @@ const AdicionarDespesaModal = ({ modalVisible, setModalVisible, adicionarDespesa
   const [novoMetodoPagamento, setNovoMetodoPagamento] = useState('');
 
   const handleAdicionarDespesa = () => {
-    
 
     // Valida a data digitada
     if (!validarData(novaData)) {
@@ -21,9 +20,7 @@ const AdicionarDespesaModal = ({ modalVisible, setModalVisible, adicionarDespesa
       setNovaData('');  // Limpa o campo de data em caso de erro
       return;
     }
-    
     // Verifica se todos os campos foram preenchidos
-    
     if (!novaDescricao || !novoValor || !novaData || !novoEstabelecimento || !novoMetodoPagamento) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos.');
       return;
