@@ -1,7 +1,15 @@
 import React, {useState, useContext} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SaldoContext } from '../contexts/SaldoContext';
-import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal} from 'react-native';
+import {SaldoContext} from '../contexts/SaldoContext';
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AdicionarDespesaModal from '../components/modals/AdicionarDespesaModal';
 import AdicionarDepositoModal from '../components/modals/AdicionarDepositoModal';
@@ -9,35 +17,37 @@ import AdicionarDepositoModal from '../components/modals/AdicionarDepositoModal'
 // Dados fictícios do cartão do usuário
 
 const Home = () => {
-    // Estado para controlar a visibilidade do modal
-    const [modalVisible, setModalVisible] = useState(false);
-    const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
-    const [modalDepositoVisible, setModalDepositoVisible] = useState(false);
+  // Estado para controlar a visibilidade do modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
+  const [modalDepositoVisible, setModalDepositoVisible] = useState(false);
 
-    const { saldo } = useContext(SaldoContext);
+  const {saldo, setSaldo} = useContext(SaldoContext);
 
-    const adicionarDespesa = async (novaDespesa) => {
-      
-      try {
-          const existingExpenses = JSON.parse(await AsyncStorage.getItem('expenses')) || [];
-          
-          const updatedExpenses = [...existingExpenses, novaDespesa];
-  
-          await AsyncStorage.setItem('expenses', JSON.stringify(updatedExpenses));
+  const adicionarDespesa = async novaDespesa => {
+    
+    const novoSaldo = saldo - novaDespesa.valor;
+    setSaldo(novoSaldo);
 
-      } catch (error) {
-          console.error('Erro ao acessar o AsyncStorage:', error.message);
-      }
+    try {
+      const existingExpenses =
+        JSON.parse(await AsyncStorage.getItem('expenses')) || [];
+
+      const updatedExpenses = [...existingExpenses, novaDespesa];
+
+      await AsyncStorage.setItem('expenses', JSON.stringify(updatedExpenses));
+    } catch (error) {
+      console.error('Erro ao acessar o AsyncStorage:', error.message);
+    }
   };
-  
 
   // Hook para navegação entre telas
   const navigation = useNavigation();
 
   // Estado inicial das despesas com alguns exemplos predefinidos
   const [despesas, setDespesas] = useState([
-    { id: 1, descricao: 'Shopee', valor: 70 },
-    { id: 2, descricao: 'Ifood', valor: 25.5 },
+    {id: 1, descricao: 'Shopee', valor: 70},
+    {id: 2, descricao: 'Ifood', valor: 25.5},
   ]);
 
   const dadosUsuario = {
@@ -56,45 +66,49 @@ const Home = () => {
     <View style={styles.container}>
       {/* ScrollView para garantir que o conteúdo seja rolável */}
       <ScrollView contentContainerStyle={{paddingBottom: 100}}>
-
         {/* Cabeçalho com imagem do usuário e título */}
-      <TouchableOpacity onPress={() => setModalUsuarioVisible(true)}>
-        <View style={styles.header}>
-          <Image
-            source={{
-              uri: 'https://t3.ftcdn.net/jpg/06/19/26/46/360_F_619264680_x2PBdGLF54sFe7kTBtAvZnPyXgvaRw0Y.jpg',
-            }}
-            style={styles.imagemUsuario}
-          />
-          <Text style={styles.titulo}>Bem-vindo</Text>
-        </View>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => setModalUsuarioVisible(true)}>
+          <View style={styles.header}>
+            <Image
+              source={{
+                uri: 'https://t3.ftcdn.net/jpg/06/19/26/46/360_F_619264680_x2PBdGLF54sFe7kTBtAvZnPyXgvaRw0Y.jpg',
+              }}
+              style={styles.imagemUsuario}
+            />
+            <Text style={styles.titulo}>Bem-vindo</Text>
+          </View>
+        </TouchableOpacity>
 
-       {/* Modal para detalhes do usuário */}
-        <Modal animationType="slide" transparent={true} visible={modalUsuarioVisible}>
-                <View style={styles.modalContainerUsuario}>
-                  <View style={styles.modalContentUsuario}>
-                    <Text style={styles.modalTituloUsuario}>Perfil</Text>
-                      <View style={styles.modalDetalhesUsuario}>
-                        <Text style={styles.modalDescricaoUsuario}>
-                          <Text style={styles.negrito}>👤 Nome:</Text> {dadosUsuario.nome}
-                        </Text>
-                        <Text style={styles.modalDescricaoUsuario}>
-                          <Text style={styles.negrito}>✉️ E-mail:</Text> {dadosUsuario.email}
-                        </Text>
-                        <Text style={styles.modalDescricaoUsuario}>
-                          <Text style={styles.negrito}>📲 Telefone:</Text> {dadosUsuario.telefone}
-                        </Text>
-                      </View>
-                    {/* Botão sempre no final */}
-                    <TouchableOpacity
+        {/* Modal para detalhes do usuário */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalUsuarioVisible}>
+          <View style={styles.modalContainerUsuario}>
+            <View style={styles.modalContentUsuario}>
+              <Text style={styles.modalTituloUsuario}>Perfil</Text>
+              <View style={styles.modalDetalhesUsuario}>
+                <Text style={styles.modalDescricaoUsuario}>
+                  <Text style={styles.negrito}>👤 Nome:</Text>{' '}
+                  {dadosUsuario.nome}
+                </Text>
+                <Text style={styles.modalDescricaoUsuario}>
+                  <Text style={styles.negrito}>✉️ E-mail:</Text>{' '}
+                  {dadosUsuario.email}
+                </Text>
+                <Text style={styles.modalDescricaoUsuario}>
+                  <Text style={styles.negrito}>📲 Telefone:</Text>{' '}
+                  {dadosUsuario.telefone}
+                </Text>
+              </View>
+              {/* Botão sempre no final */}
+              <TouchableOpacity
                 style={styles.botaoFecharUsuario}
-                onPress={() => setModalUsuarioVisible(false)}
-              >
+                onPress={() => setModalUsuarioVisible(false)}>
                 <Text style={styles.botaoFecharTextoUsuario}>Fechar</Text>
               </TouchableOpacity>
-                  </View>
-                </View>
+            </View>
+          </View>
         </Modal>
 
         {/* Cartão do usuário, exibindo saldo e informações do cartão */}
@@ -138,10 +152,17 @@ const Home = () => {
       </TouchableOpacity>
 
       {/* Modal para adicionar nova despesa */}
-      <AdicionarDespesaModal modalVisible={modalVisible} setModalVisible={setModalVisible} adicionarDespesa={adicionarDespesa}></AdicionarDespesaModal>
+      <AdicionarDespesaModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        adicionarDespesa={adicionarDespesa}></AdicionarDespesaModal>
 
       {/* Modal para adicionar novo depósito */}
-      <AdicionarDepositoModal modalDepositoVisible={modalDepositoVisible} setModalDepositoVisible={setModalDepositoVisible}></AdicionarDepositoModal>
+      <AdicionarDepositoModal
+        modalDepositoVisible={modalDepositoVisible}
+        setModalDepositoVisible={
+          setModalDepositoVisible
+        }></AdicionarDepositoModal>
 
       {/* Rodapé fixo na parte inferior da tela */}
       <View style={styles.footer}>
@@ -378,7 +399,6 @@ const styles = StyleSheet.create({
     width: 60, // Largura do ícone do cartão
     height: 60, // Altura do ícone do cartão
   },
-
 });
 
 export default Home;
