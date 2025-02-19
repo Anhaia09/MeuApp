@@ -25,7 +25,6 @@ const Home = () => {
   const {saldo, setSaldo} = useContext(SaldoContext);
 
   const adicionarDespesa = async novaDespesa => {
-    
     const novoSaldo = saldo - novaDespesa.valor;
     setSaldo(novoSaldo);
 
@@ -45,7 +44,7 @@ const Home = () => {
   const navigation = useNavigation();
 
   // Estado inicial das despesas com alguns exemplos predefinidos
-  const [despesas, setDespesas] = useState([
+  const [despesas] = useState([
     {id: 1, descricao: 'Shopee', valor: 70},
     {id: 2, descricao: 'Ifood', valor: 25.5},
   ]);
