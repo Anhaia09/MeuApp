@@ -1,6 +1,8 @@
 import React, {useState, useContext} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SaldoContext} from '../contexts/SaldoContext';
+import {storage} from '../services/storage';
+import uuid from 'react-native-uuid';
+
 import {
   View,
   Text,
@@ -14,9 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import AdicionarDespesaModal from '../components/modals/AdicionarDespesaModal';
 import AdicionarDepositoModal from '../components/modals/AdicionarDepositoModal';
 
-// Dados fictícios do cartão do usuário
-
-const Home = () => {
+const Home = ({despesas, setDespesas}) => {
   // Estado para controlar a visibilidade do modal
   const [modalVisible, setModalVisible] = useState(false);
   const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
@@ -25,29 +25,39 @@ const Home = () => {
   const {saldo, setSaldo} = useContext(SaldoContext);
 
   const adicionarDespesa = async novaDespesa => {
-    const novoSaldo = saldo - novaDespesa.valor;
-    setSaldo(novoSaldo);
-
     try {
-      const existingExpenses =
-        JSON.parse(await AsyncStorage.getItem('expenses')) || [];
-
-      const updatedExpenses = [...existingExpenses, novaDespesa];
-
-      await AsyncStorage.setItem('expenses', JSON.stringify(updatedExpenses));
+      // Gerando um ID único para a nova despesa
+      const despesaComId = {
+        id: uuid.v4(),  // Adiciona um ID único
+        ...novaDespesa
+      };
+  
+      // Obtendo despesas salvas
+      const existingExpenses = storage.getString('expenses');
+      const parsedExpenses = existingExpenses
+        ? JSON.parse(existingExpenses)
+        : [];
+  
+      // Adicionando nova despesa com ID
+      const updatedExpenses = [...parsedExpenses, despesaComId];
+  
+      // Salvando no MMKV
+      storage.set('expenses', JSON.stringify(updatedExpenses));
+  
+      // Atualizando o estado
+      setDespesas(updatedExpenses);
+      console.log('updatedExpenses:', updatedExpenses);
+  
+      // Atualizando saldo
+      const novoSaldo = saldo - novaDespesa.valor;
+      setSaldo(novoSaldo);
     } catch (error) {
-      console.error('Erro ao acessar o AsyncStorage:', error.message);
+      console.error('Erro ao acessar o MMKV:', error.message);
     }
   };
-
+  
   // Hook para navegação entre telas
   const navigation = useNavigation();
-
-  // Estado inicial das despesas com alguns exemplos predefinidos
-  const [despesas] = useState([
-    {id: 1, descricao: 'Shopee', valor: 70},
-    {id: 2, descricao: 'Ifood', valor: 25.5},
-  ]);
 
   const dadosUsuario = {
     nome: 'Luana',

@@ -8,29 +8,32 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {storage} from '../services/storage';
 
-const History = ({navigation}) => {
+const History = ({navigation, despesas, setDespesas}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [despesaSelecionada, setDespesaSelecionada] = useState(null);
-  const [despesas, setDespesas] = useState([]);
 
   useEffect(() => {
-    const fetchExpenses = async () => {
+    const carregarDespesas = () => {
       try {
-        const storedExpenses =
-          JSON.parse(await AsyncStorage.getItem('expenses')) || [];
-        setDespesas(prevDespesas => [
-          ...prevDespesas, // Valores anteriores
-          ...storedExpenses, // Dados do AsyncStorage
-        ]);
+        const storedExpenses = storage.getString('expenses'); // Pegando o array diretamente
+        if (storedExpenses) {
+          const parsedExpenses = JSON.parse(storedExpenses);
+          console.log("Despesas carregadas:", parsedExpenses);
+          setDespesas(parsedExpenses); // Atualizando o estado corretamente
+        } else {
+          console.log("Nenhuma despesa encontrada.");
+          setDespesas([]); // Se não houver despesas, definir como um array vazio
+        }
       } catch (error) {
-        console.error('Erro ao acessar o AsyncStorage:', error);
+        console.error('Erro ao carregar despesas:', error);
       }
     };
-
-    fetchExpenses();
+  
+    carregarDespesas();
   }, []);
+  
 
   const abrirDetalhes = despesa => {
     setDespesaSelecionada(despesa);
@@ -39,7 +42,7 @@ const History = ({navigation}) => {
 
   const limparDespesas = async () => {
     try {
-      await AsyncStorage.removeItem('expenses'); // Remove os dados do AsyncStorage
+      storage.delete('expenses'); // Limpa os dados do mmkv
       setDespesas([]); // Atualiza o estado para um array vazio
       console.log('Despesas limpas com sucesso!');
     } catch (error) {
