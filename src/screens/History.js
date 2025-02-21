@@ -9,6 +9,7 @@ import {
   FlatList,
 } from 'react-native';
 import {storage} from '../services/storage';
+import Footer from '../components/Footer'; // Adjust the path as necessary
 
 const History = ({navigation, despesas, setDespesas}) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -117,24 +118,7 @@ const History = ({navigation, despesas, setDespesas}) => {
       </Modal>
 
       {/* Rodapé */}
-      <View style={styles.footer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Image
-            source={{
-              uri: 'https://png.pngtree.com/png-clipart/20230923/original/pngtree-illustration-of-a-basic-home-icon-with-a-house-symbol-in-png-image_12664609.png',
-            }}
-            style={styles.imagemCasaFooter}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Image
-            source={{
-              uri: 'https://paz.church/goiania/wp-content/uploads/2020/04/cart%C3%A3o-icone-4.jpg',
-            }}
-            style={styles.imagemCartaoFooter}
-          />
-        </TouchableOpacity>
-      </View>
+      <Footer navigation={navigation} />    
     </View>
   );
 };
@@ -230,15 +214,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  imagemCasaFooter: {
-    width: 60,
-    height: 60,
-    marginLeft: 30,
-  },
-  imagemCartaoFooter: {
-    width: 60,
-    height: 60,
-  },
   botaoLimpar: {
     backgroundColor: '#E74C3C', // Vermelho para destacar
     padding: 10,
@@ -254,16 +229,6 @@ const styles = StyleSheet.create({
   listaContainer: {
     flex: 1, // Garante que a lista ocupe o espaço restante
     marginBottom: 80, // Evita que os itens fiquem atrás do footer
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 40, // Espaçamento lateral
-    paddingVertical: 10, // Espaçamento interno vertical
   },
   
 });
