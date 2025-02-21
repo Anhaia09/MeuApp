@@ -48,38 +48,35 @@ const History = ({navigation, despesas, setDespesas}) => {
     }
   };
 
-  console.log('despesaSelecionada', despesaSelecionada);
-  
-
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Histórico de Despesas</Text>
 
-      {/* Botão para limpar despesas */}
       <TouchableOpacity style={styles.botaoLimpar} onPress={limparDespesas}>
         <Text style={styles.botaoLimparTexto}>Limpar Despesas</Text>
       </TouchableOpacity>
 
-      {/* Lista de Despesas */}
-      <FlatList
-        data={despesas}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.listaDespesas}
-        style={styles.lista}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.cardDespesa}
-            onPress={() => abrirDetalhes(item)}
-            activeOpacity={0.8}>
-            <View style={styles.cardContent}>
-              <Text style={styles.descricaoDespesa}>{item.descricao}</Text>
-              <Text style={styles.valorDespesa}>
-                R$ {item.valor.toFixed(2)}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+      {/* Caixa que limita o scroll até o footer */}
+      <View style={styles.listaContainer}>
+        <FlatList
+          data={despesas}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={styles.listaDespesas}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.cardDespesa}
+              onPress={() => abrirDetalhes(item)}
+              activeOpacity={0.8}>
+              <View style={styles.cardContent}>
+                <Text style={styles.descricaoDespesa}>{item.descricao}</Text>
+                <Text style={styles.valorDespesa}>
+                  R$ {item.valor.toFixed(2)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
 
       {/* Modal de Detalhes */}
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -148,9 +145,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
+
   },
   listaDespesas: {
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   lista: {
     flex: 1,
@@ -232,16 +230,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 10,
-  },
   imagemCasaFooter: {
     width: 60,
     height: 60,
@@ -263,6 +251,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  listaContainer: {
+    flex: 1, // Garante que a lista ocupe o espaço restante
+    marginBottom: 80, // Evita que os itens fiquem atrás do footer
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 40, // Espaçamento lateral
+    paddingVertical: 10, // Espaçamento interno vertical
+  },
+  
 });
 
 export default History;
