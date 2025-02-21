@@ -20,20 +20,18 @@ const History = ({navigation, despesas, setDespesas}) => {
         const storedExpenses = storage.getString('expenses'); // Pegando o array diretamente
         if (storedExpenses) {
           const parsedExpenses = JSON.parse(storedExpenses);
-          console.log("Despesas carregadas:", parsedExpenses);
           setDespesas(parsedExpenses); // Atualizando o estado corretamente
         } else {
-          console.log("Nenhuma despesa encontrada.");
+          console.log('Nenhuma despesa encontrada.');
           setDespesas([]); // Se não houver despesas, definir como um array vazio
         }
       } catch (error) {
         console.error('Erro ao carregar despesas:', error);
       }
     };
-  
+
     carregarDespesas();
   }, []);
-  
 
   const abrirDetalhes = despesa => {
     setDespesaSelecionada(despesa);
@@ -49,6 +47,9 @@ const History = ({navigation, despesas, setDespesas}) => {
       console.error('Erro ao limpar despesas:', error);
     }
   };
+
+  console.log('despesaSelecionada', despesaSelecionada);
+  
 
   return (
     <View style={styles.container}>
@@ -105,7 +106,7 @@ const History = ({navigation, despesas, setDespesas}) => {
                 </Text>
                 <Text style={styles.modalDescricao}>
                   <Text style={styles.negrito}>💳 Método de Pagamento:</Text>{' '}
-                  {despesaSelecionada.metodo}
+                  {despesaSelecionada.metodoPagamento}
                 </Text>
               </View>
             )}

@@ -28,26 +28,26 @@ const Home = ({despesas, setDespesas}) => {
     try {
       // Gerando um ID único para a nova despesa
       const despesaComId = {
-        id: uuid.v4(),  // Adiciona um ID único
-        ...novaDespesa
+        id: uuid.v4(), // Adiciona um ID único
+        ...novaDespesa,
       };
-  
+
       // Obtendo despesas salvas
       const existingExpenses = storage.getString('expenses');
       const parsedExpenses = existingExpenses
         ? JSON.parse(existingExpenses)
         : [];
-  
+
       // Adicionando nova despesa com ID
       const updatedExpenses = [...parsedExpenses, despesaComId];
-  
+
       // Salvando no MMKV
       storage.set('expenses', JSON.stringify(updatedExpenses));
-  
+
       // Atualizando o estado
       setDespesas(updatedExpenses);
       console.log('updatedExpenses:', updatedExpenses);
-  
+
       // Atualizando saldo
       const novoSaldo = saldo - novaDespesa.valor;
       setSaldo(novoSaldo);
@@ -55,7 +55,7 @@ const Home = ({despesas, setDespesas}) => {
       console.error('Erro ao acessar o MMKV:', error.message);
     }
   };
-  
+
   // Hook para navegação entre telas
   const navigation = useNavigation();
 
@@ -136,7 +136,7 @@ const Home = ({despesas, setDespesas}) => {
         {/* Exibindo histórico de despesas */}
         <View style={styles.despesasContainer}>
           <Text style={styles.tituloDespesas}>Despesas</Text>
-          {despesas.map(despesa => (
+          {despesas.slice(0, 2).map(despesa => (
             <View key={despesa.id} style={styles.itemDespesa}>
               <Text style={styles.descricaoDespesa}>{despesa.descricao}</Text>
               <Text style={styles.valorDespesa}>
