@@ -1,16 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { SaldoContext } from '../../contexts/SaldoContext';
 import { Modal, View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { validarValor } from '../../utils/validation'; // Importa a função de validação
 import styles from './AdicionarDespesaModal.styles'; // Importa os estilos
 import { validarData } from '../../utils/validateData'; // Importa a função de validação
+import storage from '../../services/storage'; // Importa o módulo de armazenamento
+import uuid from 'react-native-uuid'; // Importa a biblioteca para gerar IDs únicos
 
-const AdicionarDespesaModal = ({ modalVisible, setModalVisible, adicionarDespesa}) => {
+const AdicionarDespesaModal = ({ modalVisible, setModalVisible, setDespesas }) => {
   // Estados para armazenar os valores dos campos do formulário de nova despesa
   const [novaDescricao, setNovaDescricao] = useState('');
   const [novoValor, setNovoValor] = useState('');
   const [novaData, setNovaData] = useState('');
   const [novoEstabelecimento, setNovoEstabelecimento] = useState('');
   const [novoMetodoPagamento, setNovoMetodoPagamento] = useState('');
+  const {saldo, setSaldo} = useContext(SaldoContext);
+
+    const adicionarDespesa = async novaDespesa => {
+      try {
+        // Gerando um ID único para a nova despesa
+        const despesaComId = {
+          id: uuid.v4(), // Adiciona um ID único
+          ...novaDespesa,
+        };
+  
+        // Obtendo despesas salvas
+        const existingExpenses = storage.getString('expenses');
+        const parsedExpenses = existingExpenses
+          ? JSON.parse(existingExpenses)
+          : [];
+  
+        // Adicionando nova despesa com ID
+        const updatedExpenses = [...parsedExpenses, despesaComId];
+  
+        // Salvando no MMKV
+        storage.set('expenses', JSON.stringify(updatedExpenses));
+  
+        // Atualizando o estado
+        setDespesas(updatedExpenses);
+        console.log('updatedExpenses:', updatedExpenses);
+  
+        // Atualizando saldo
+        const novoSaldo = saldo - novaDespesa.valor;
+        setSaldo(novoSaldo);
+      } catch (error) {
+        console.error('Erro ao acessar o MMKV:', error.message);
+      }
+    };
 
   const handleAdicionarDespesa = () => {
 

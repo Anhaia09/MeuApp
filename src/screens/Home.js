@@ -1,7 +1,5 @@
 import React, {useState, useContext} from 'react';
 import {SaldoContext} from '../contexts/SaldoContext';
-import {storage} from '../services/storage';
-import uuid from 'react-native-uuid';
 
 import {
   View,
@@ -24,38 +22,6 @@ const Home = ({despesas, setDespesas}) => {
   const [modalDepositoVisible, setModalDepositoVisible] = useState(false);
 
   const {saldo, setSaldo} = useContext(SaldoContext);
-
-  const adicionarDespesa = async novaDespesa => {
-    try {
-      // Gerando um ID único para a nova despesa
-      const despesaComId = {
-        id: uuid.v4(), // Adiciona um ID único
-        ...novaDespesa,
-      };
-
-      // Obtendo despesas salvas
-      const existingExpenses = storage.getString('expenses');
-      const parsedExpenses = existingExpenses
-        ? JSON.parse(existingExpenses)
-        : [];
-
-      // Adicionando nova despesa com ID
-      const updatedExpenses = [...parsedExpenses, despesaComId];
-
-      // Salvando no MMKV
-      storage.set('expenses', JSON.stringify(updatedExpenses));
-
-      // Atualizando o estado
-      setDespesas(updatedExpenses);
-      console.log('updatedExpenses:', updatedExpenses);
-
-      // Atualizando saldo
-      const novoSaldo = saldo - novaDespesa.valor;
-      setSaldo(novoSaldo);
-    } catch (error) {
-      console.error('Erro ao acessar o MMKV:', error.message);
-    }
-  };
 
   // Hook para navegação entre telas
   const navigation = useNavigation();
@@ -165,7 +131,7 @@ const Home = ({despesas, setDespesas}) => {
       <AdicionarDespesaModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        adicionarDespesa={adicionarDespesa}></AdicionarDespesaModal>
+        setDespesas={setDespesas}></AdicionarDespesaModal>
 
       {/* Modal para adicionar novo depósito */}
       <AdicionarDepositoModal
