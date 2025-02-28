@@ -8,28 +8,30 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {storage} from '../services/storage';
+import Footer from '../components/Footer'; // Adjust the path as necessary
 
-const History = ({navigation}) => {
+const History = ({navigation, despesas, setDespesas}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [despesaSelecionada, setDespesaSelecionada] = useState(null);
-  const [despesas, setDespesas] = useState([]);
 
   useEffect(() => {
-    const fetchExpenses = async () => {
+    const carregarDespesas = () => {
       try {
-        const storedExpenses =
-          JSON.parse(await AsyncStorage.getItem('expenses')) || [];
-        setDespesas(prevDespesas => [
-          ...prevDespesas, // Valores anteriores
-          ...storedExpenses, // Dados do AsyncStorage
-        ]);
+        const storedExpenses = storage.getString('expenses'); // Pegando o array diretamente
+        if (storedExpenses) {
+          const parsedExpenses = JSON.parse(storedExpenses);
+          setDespesas(parsedExpenses); // Atualizando o estado corretamente
+        } else {
+          console.log('Nenhuma despesa encontrada.');
+          setDespesas([]); // Se não houver despesas, definir como um array vazio
+        }
       } catch (error) {
-        console.error('Erro ao acessar o AsyncStorage:', error);
+        console.error('Erro ao carregar despesas:', error);
       }
     };
 
-    fetchExpenses();
+    carregarDespesas();
   }, []);
 
   const abrirDetalhes = despesa => {
@@ -39,7 +41,7 @@ const History = ({navigation}) => {
 
   const limparDespesas = async () => {
     try {
-      await AsyncStorage.removeItem('expenses'); // Remove os dados do AsyncStorage
+      storage.delete('expenses'); // Limpa os dados do mmkv
       setDespesas([]); // Atualiza o estado para um array vazio
       console.log('Despesas limpas com sucesso!');
     } catch (error) {
@@ -51,31 +53,31 @@ const History = ({navigation}) => {
     <View style={styles.container}>
       <Text style={styles.titulo}>Histórico de Despesas</Text>
 
-      {/* Botão para limpar despesas */}
       <TouchableOpacity style={styles.botaoLimpar} onPress={limparDespesas}>
         <Text style={styles.botaoLimparTexto}>Limpar Despesas</Text>
       </TouchableOpacity>
 
-      {/* Lista de Despesas */}
-      <FlatList
-        data={despesas}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.listaDespesas}
-        style={styles.lista}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.cardDespesa}
-            onPress={() => abrirDetalhes(item)}
-            activeOpacity={0.8}>
-            <View style={styles.cardContent}>
-              <Text style={styles.descricaoDespesa}>{item.descricao}</Text>
-              <Text style={styles.valorDespesa}>
-                R$ {item.valor.toFixed(2)}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
+      {/* Caixa que limita o scroll até o footer */}
+      <View style={styles.listaContainer}>
+        <FlatList
+          data={despesas}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={styles.listaDespesas}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.cardDespesa}
+              onPress={() => abrirDetalhes(item)}
+              activeOpacity={0.8}>
+              <View style={styles.cardContent}>
+                <Text style={styles.descricaoDespesa}>{item.descricao}</Text>
+                <Text style={styles.valorDespesa}>
+                  R$ {item.valor.toFixed(2)}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
 
       {/* Modal de Detalhes */}
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -102,7 +104,7 @@ const History = ({navigation}) => {
                 </Text>
                 <Text style={styles.modalDescricao}>
                   <Text style={styles.negrito}>💳 Método de Pagamento:</Text>{' '}
-                  {despesaSelecionada.metodo}
+                  {despesaSelecionada.metodoPagamento}
                 </Text>
               </View>
             )}
@@ -116,24 +118,7 @@ const History = ({navigation}) => {
       </Modal>
 
       {/* Rodapé */}
-      <View style={styles.footer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Image
-            source={{
-              uri: 'https://png.pngtree.com/png-clipart/20230923/original/pngtree-illustration-of-a-basic-home-icon-with-a-house-symbol-in-png-image_12664609.png',
-            }}
-            style={styles.imagemCasaFooter}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Image
-            source={{
-              uri: 'https://paz.church/goiania/wp-content/uploads/2020/04/cart%C3%A3o-icone-4.jpg',
-            }}
-            style={styles.imagemCartaoFooter}
-          />
-        </TouchableOpacity>
-      </View>
+      <Footer navigation={navigation} />    
     </View>
   );
 };
@@ -144,9 +129,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
+
   },
   listaDespesas: {
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   lista: {
     flex: 1,
@@ -228,25 +214,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingVertical: 10,
-  },
-  imagemCasaFooter: {
-    width: 60,
-    height: 60,
-    marginLeft: 30,
-  },
-  imagemCartaoFooter: {
-    width: 60,
-    height: 60,
-  },
   botaoLimpar: {
     backgroundColor: '#E74C3C', // Vermelho para destacar
     padding: 10,
@@ -259,6 +226,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  listaContainer: {
+    flex: 1, // Garante que a lista ocupe o espaço restante
+    marginBottom: 80, // Evita que os itens fiquem atrás do footer
+  },
+  
 });
 
 export default History;

@@ -1,6 +1,8 @@
 import React, {useState, useContext} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SaldoContext} from '../contexts/SaldoContext';
+import {storage} from '../services/storage';
+import uuid from 'react-native-uuid';
+
 import {
   View,
   Text,
@@ -13,10 +15,9 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import AdicionarDespesaModal from '../components/modals/AdicionarDespesaModal';
 import AdicionarDepositoModal from '../components/modals/AdicionarDepositoModal';
+import Footer from '../components/Footer';
 
-// Dados fictícios do cartão do usuário
-
-const Home = () => {
+const Home = ({despesas, setDespesas}) => {
   // Estado para controlar a visibilidade do modal
   const [modalVisible, setModalVisible] = useState(false);
   const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
@@ -25,29 +26,39 @@ const Home = () => {
   const {saldo, setSaldo} = useContext(SaldoContext);
 
   const adicionarDespesa = async novaDespesa => {
-    const novoSaldo = saldo - novaDespesa.valor;
-    setSaldo(novoSaldo);
-
     try {
-      const existingExpenses =
-        JSON.parse(await AsyncStorage.getItem('expenses')) || [];
+      // Gerando um ID único para a nova despesa
+      const despesaComId = {
+        id: uuid.v4(), // Adiciona um ID único
+        ...novaDespesa,
+      };
 
-      const updatedExpenses = [...existingExpenses, novaDespesa];
+      // Obtendo despesas salvas
+      const existingExpenses = storage.getString('expenses');
+      const parsedExpenses = existingExpenses
+        ? JSON.parse(existingExpenses)
+        : [];
 
-      await AsyncStorage.setItem('expenses', JSON.stringify(updatedExpenses));
+      // Adicionando nova despesa com ID
+      const updatedExpenses = [...parsedExpenses, despesaComId];
+
+      // Salvando no MMKV
+      storage.set('expenses', JSON.stringify(updatedExpenses));
+
+      // Atualizando o estado
+      setDespesas(updatedExpenses);
+      console.log('updatedExpenses:', updatedExpenses);
+
+      // Atualizando saldo
+      const novoSaldo = saldo - novaDespesa.valor;
+      setSaldo(novoSaldo);
     } catch (error) {
-      console.error('Erro ao acessar o AsyncStorage:', error.message);
+      console.error('Erro ao acessar o MMKV:', error.message);
     }
   };
 
   // Hook para navegação entre telas
   const navigation = useNavigation();
-
-  // Estado inicial das despesas com alguns exemplos predefinidos
-  const [despesas] = useState([
-    {id: 1, descricao: 'Shopee', valor: 70},
-    {id: 2, descricao: 'Ifood', valor: 25.5},
-  ]);
 
   const dadosUsuario = {
     nome: 'Luana',
@@ -126,7 +137,7 @@ const Home = () => {
         {/* Exibindo histórico de despesas */}
         <View style={styles.despesasContainer}>
           <Text style={styles.tituloDespesas}>Despesas</Text>
-          {despesas.map(despesa => (
+          {despesas.slice(0, 2).map(despesa => (
             <View key={despesa.id} style={styles.itemDespesa}>
               <Text style={styles.descricaoDespesa}>{despesa.descricao}</Text>
               <Text style={styles.valorDespesa}>
@@ -164,27 +175,7 @@ const Home = () => {
         }></AdicionarDepositoModal>
 
       {/* Rodapé fixo na parte inferior da tela */}
-      <View style={styles.footer}>
-        {/* Ícone da Casa (para navegar para a tela inicial) */}
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Image
-            source={{
-              uri: 'https://png.pngtree.com/png-clipart/20230923/original/pngtree-illustration-of-a-basic-home-icon-with-a-house-symbol-in-png-image_12664609.png',
-            }}
-            style={styles.imagemCasaFooter}
-          />
-        </TouchableOpacity>
-
-        {/* Ícone do Cartão (para navegar para a tela de histórico de despesas) */}
-        <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <Image
-            source={{
-              uri: 'https://paz.church/goiania/wp-content/uploads/2020/04/cart%C3%A3o-icone-4.jpg',
-            }}
-            style={styles.imagemCartaoFooter}
-          />
-        </TouchableOpacity>
-      </View>
+      <Footer navigation={navigation} />
     </View>
   );
 };
@@ -377,26 +368,6 @@ const styles = StyleSheet.create({
     color: '#fff', // Define a cor do texto como branco
     fontSize: 30, // Define o tamanho da fonte como 30 pixels (corrigindo erro de digitação)
     fontWeight: 'bold', // Define o texto em negrito
-  },
-
-  footer: {
-    position: 'absolute', // Fixa o rodapé na parte inferior
-    bottom: 0, // Posiciona no final da tela
-    width: '100%', // Ocupa toda a largura
-    flexDirection: 'row', // Alinha os ícones horizontalmente
-    justifyContent: 'space-between', // Espaço entre os ícones
-    alignItems: 'center', // Alinha os ícones verticalmente
-    paddingHorizontal: 40, // Espaçamento lateral
-    paddingVertical: 10, // Espaçamento interno vertical
-  },
-  imagemCasaFooter: {
-    width: 60, // Largura do ícone da casa
-    height: 60, // Altura do ícone da casa
-    marginLeft: 30, // Margem à esquerda do ícone
-  },
-  imagemCartaoFooter: {
-    width: 60, // Largura do ícone do cartão
-    height: 60, // Altura do ícone do cartão
   },
 });
 
