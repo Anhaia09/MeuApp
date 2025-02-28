@@ -10,7 +10,8 @@ const AdicionarDepositoModal = ({ modalDepositoVisible, setModalDepositoVisible}
     // Função para adicionar depósito
     const adicionarDeposito = () => {
       // Verifica se a entrada contém apenas números e ponto decimal
-      if (/^\d+(\.\d+)?$/.test(novoValor)) {
+      if (!/^\d+(\.\d+)?$/.test(novoValor)) {
+        
         Alert.alert('Valor inválido', 'Por favor, insira um número válido.');
         setNovoValor('');  // Limpa o campo
         return;
