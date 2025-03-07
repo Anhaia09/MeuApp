@@ -11,7 +11,7 @@ import {
 import {validarValor} from '../../utils/validation'; // Importa a função de validação
 import styles from './AdicionarDespesaModal.styles'; // Importa os estilos
 import {validarData} from '../../utils/validateData'; // Importa a função de validação
-import storage from '../../services/storage'; // Importa o módulo de armazenamento
+import { storage } from '../../services/storage'; // Importa o módulo de armazenamento
 import uuid from 'react-native-uuid'; // Importa a biblioteca para gerar IDs únicos
 
 const AdicionarDespesaModal = ({
