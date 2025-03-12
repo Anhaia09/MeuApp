@@ -11,7 +11,7 @@ import {
 import {validarValor} from '../../utils/validation'; // Importa a função de validação
 import styles from './AdicionarDespesaModal.styles'; // Importa os estilos
 import {validarData} from '../../utils/validateData'; // Importa a função de validação
-import { storage } from '../../services/storage'; // Importa o módulo de armazenamento
+import {storage} from '../../services/storage'; // Importa o módulo de armazenamento
 import uuid from 'react-native-uuid'; // Importa a biblioteca para gerar IDs únicos
 
 const AdicionarDespesaModal = ({
@@ -26,6 +26,7 @@ const AdicionarDespesaModal = ({
   const [novoEstabelecimento, setNovoEstabelecimento] = useState('');
   const [novoMetodoPagamento, setNovoMetodoPagamento] = useState('');
   const {saldo, setSaldo} = useContext(SaldoContext);
+  const [successoModalVisible, setSuccessoModalVisible] = useState(false); // Estado para controlar a visibilidade do modal de sucesso
 
   // Função para formatar a data no formato DD/MM/YYYY enquanto o usuário digita
   const formatarData = input => {
@@ -68,6 +69,9 @@ const AdicionarDespesaModal = ({
       // Atualizando saldo
       const novoSaldo = saldo - novaDespesa.valor;
       setSaldo(novoSaldo);
+
+      // Exibe o modal de sucesso
+      setSuccessoModalVisible(true);
     } catch (error) {
       console.error('Erro ao acessar o MMKV:', error.message);
     }
@@ -132,74 +136,99 @@ const AdicionarDespesaModal = ({
   };
 
   return (
-    <Modal animationType="slide" transparent={true} visible={modalVisible}>
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitulo}>Nova Despesa</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Despesa"
-            placeholderTextColor="#7F8C8D"
-            value={novaDescricao}
-            onChangeText={setNovaDescricao}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Valor (R$)"
-            placeholderTextColor="#7F8C8D"
-            keyboardType="numeric"
-            value={novoValor}
-            onChangeText={setNovoValor}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Data"
-            placeholderTextColor="#7F8C8D"
-            keyboardType="numeric"
-            value={novaData}
-            onChangeText={text => {
-              const formattedText = formatarData(text); // Formata a data
-              const [dia, mes, ano] = formattedText.split('/').map(Number);
-              const dataDigitada = new Date(ano, mes - 1, dia);
-              const dataAtual = new Date();
+    <>
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitulo}>Nova Despesa</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Despesa"
+              placeholderTextColor="#7F8C8D"
+              value={novaDescricao}
+              onChangeText={setNovaDescricao}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Valor (R$)"
+              placeholderTextColor="#7F8C8D"
+              keyboardType="numeric"
+              value={novoValor}
+              onChangeText={setNovoValor}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Data"
+              placeholderTextColor="#7F8C8D"
+              keyboardType="numeric"
+              value={novaData}
+              onChangeText={text => {
+                const formattedText = formatarData(text); // Formata a data
+                const [dia, mes, ano] = formattedText.split('/').map(Number);
+                const dataDigitada = new Date(ano, mes - 1, dia);
+                const dataAtual = new Date();
 
-              // Verifica se a data é futura
-              if (dataDigitada > dataAtual) {
-                Alert.alert('Erro', 'Não é permitido inserir uma data futura.');
-                return;
-              }
+                // Verifica se a data é futura
+                if (dataDigitada > dataAtual) {
+                  Alert.alert(
+                    'Erro',
+                    'Não é permitido inserir uma data futura.',
+                  );
+                  return;
+                }
 
-              setNovaData(formattedText); // Atualiza o estado da data
-            }}
-            maxLength={10} // Limita o campo a 10 caracteres
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Estabelecimento"
-            placeholderTextColor="#7F8C8D"
-            value={novoEstabelecimento}
-            onChangeText={setNovoEstabelecimento}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Método de pagamento"
-            placeholderTextColor="#7F8C8D"
-            value={novoMetodoPagamento}
-            onChangeText={setNovoMetodoPagamento}
-          />
-          <TouchableOpacity
-            style={styles.botaoSalvar}
-            onPress={handleAdicionarDespesa}>
-            <Text style={styles.botaoSalvarTexto}>Salvar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.botaoFechar}
-            onPress={() => setModalVisible(false)}>
-            <Text style={styles.botaoFecharTexto}>Fechar</Text>
-          </TouchableOpacity>
+                setNovaData(formattedText); // Atualiza o estado da data
+              }}
+              maxLength={10} // Limita o campo a 10 caracteres
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Estabelecimento"
+              placeholderTextColor="#7F8C8D"
+              value={novoEstabelecimento}
+              onChangeText={setNovoEstabelecimento}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Método de pagamento"
+              placeholderTextColor="#7F8C8D"
+              value={novoMetodoPagamento}
+              onChangeText={setNovoMetodoPagamento}
+            />
+            <TouchableOpacity
+              style={styles.botaoSalvar}
+              onPress={handleAdicionarDespesa}>
+              <Text style={styles.botaoSalvarTexto}>Salvar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.botaoFechar}
+              onPress={() => setModalVisible(false)}>
+              <Text style={styles.botaoFecharTexto}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+
+      {/* Modal de sucesso */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={successoModalVisible}
+        onRequestClose={() => setSuccessoModalVisible(false)}>
+        <View style={styles.successoModalContainer}>
+          <View style={styles.successoModalContent}>
+            <Text style={styles.successoModalTitulo}>
+              Despesa Cadastrada com Sucesso!
+            </Text>
+            <TouchableOpacity
+              style={styles.successoBotaoFechar}
+              onPress={() => setSuccessoModalVisible(false)}>
+              <Text style={styles.successoBotaoFecharTexto}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 };
 

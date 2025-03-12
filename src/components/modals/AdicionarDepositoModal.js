@@ -1,66 +1,104 @@
-import React, { useContext, useState } from 'react';
-import { Modal, View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
+import React, {useContext, useState} from 'react';
+import {
+  Modal,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Alert,
+} from 'react-native';
 import styles from './AdicionarDespesaModal.styles'; // Importa os estilos
-import { SaldoContext } from '../../contexts/SaldoContext'; // Importa o contexto de saldo
+import {SaldoContext} from '../../contexts/SaldoContext'; // Importa o contexto de saldo
 
-const AdicionarDepositoModal = ({ modalDepositoVisible, setModalDepositoVisible}) => {
+const AdicionarDepositoModal = ({
+  modalDepositoVisible,
+  setModalDepositoVisible,
+}) => {
   const [novoValor, setNovoValor] = useState('');
-  const { saldo, setSaldo } = useContext(SaldoContext);
+  const {saldo, setSaldo} = useContext(SaldoContext);
+  const [successoModalVisible, setSuccessoModalVisible] = useState(false);
 
-    // Função para adicionar depósito
-    const adicionarDeposito = () => {
-      // Verifica se a entrada contém apenas números e ponto decimal
-      if (!/^\d+(\.\d+)?$/.test(novoValor)) {
-        
-        Alert.alert('Valor inválido', 'Por favor, insira um número válido.');
-        setNovoValor('');  // Limpa o campo
-        return;
-      }
-    
-      const valor = parseFloat(novoValor);
-    
-      if (isNaN(valor) || valor <= 0) {
-        Alert.alert('Valor inválido', 'Por favor, insira um número maior que zero.');
-        setNovoValor('');  // Limpa o campo
-        return;
-      }
-    
-      // Se o valor for válido, atualiza o saldo
-      setSaldo(saldo + valor);
-      setNovoValor('');  // Limpa o campo
-      setModalDepositoVisible(false);  // Fecha o modal (se aplicável)
-    };
-    
+  // Função para adicionar depósito
+  const adicionarDeposito = () => {
+    // Verifica se a entrada contém apenas números e ponto decimal
+    if (!/^\d+(\.\d+)?$/.test(novoValor)) {
+      Alert.alert('Valor inválido', 'Por favor, insira um número válido.');
+      setNovoValor(''); // Limpa o campo
+      return;
+    }
+
+    const valor = parseFloat(novoValor);
+
+    if (isNaN(valor) || valor <= 0) {
+      Alert.alert(
+        'Valor inválido',
+        'Por favor, insira um número maior que zero.',
+      );
+      setNovoValor(''); // Limpa o campo
+      return;
+    }
+
+    // Se o valor for válido, atualiza o saldo
+    setSaldo(saldo + valor);
+    setNovoValor(''); // Limpa o campo
+    setModalDepositoVisible(false); // Fecha o modal de depósito
+    setSuccessoModalVisible(true); // Exibe o modal de sucesso
+  };
 
   return (
-    <Modal animationType="slide" transparent={true} visible={modalDepositoVisible}>
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitulo}>Realizar Depósito</Text>
+    <>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalDepositoVisible}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitulo}>Realizar Depósito</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Valor (R$)"
-            placeholderTextColor="#7F8C8D"
-            keyboardType="numeric"
-            value={novoValor}
-            onChangeText={setNovoValor}
-          />
+            <TextInput
+              style={styles.input}
+              placeholder="Valor (R$)"
+              placeholderTextColor="#7F8C8D"
+              keyboardType="numeric"
+              value={novoValor}
+              onChangeText={setNovoValor}
+            />
 
-          <TouchableOpacity
-            style={styles.botaoSalvar}
-            onPress={adicionarDeposito}>
-            <Text style={styles.botaoSalvarTexto}>Salvar</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.botaoSalvar}
+              onPress={adicionarDeposito}>
+              <Text style={styles.botaoSalvarTexto}>Salvar</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.botaoFechar}
-            onPress={() => setModalDepositoVisible(false)}>
-            <Text style={styles.botaoFecharTexto}>Fechar</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.botaoFechar}
+              onPress={() => setModalDepositoVisible(false)}>
+              <Text style={styles.botaoFecharTexto}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+
+      {/* Modal de sucesso */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={successoModalVisible}
+        onRequestClose={() => setSuccessoModalVisible(false)}>
+        <View style={styles.successoModalContainer}>
+          <View style={styles.successoModalContent}>
+            <Text style={styles.successoModalTitulo}>
+              Depósito realizado com sucesso!
+            </Text>
+            <TouchableOpacity
+              style={styles.successoBotaoFechar}
+              onPress={() => setSuccessoModalVisible(false)}>
+              <Text style={styles.successoBotaoFecharTexto}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 };
 
