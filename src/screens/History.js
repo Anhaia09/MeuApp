@@ -118,12 +118,12 @@ const History = ({navigation, despesas, setDespesas}) => {
       </Modal>
 
       {/* Rodapé */}
-      <Footer navigation={navigation} />    
+      <Footer navigation={navigation} />
     </View>
   );
 };
 
-// Estilos (mantidos iguais)
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
