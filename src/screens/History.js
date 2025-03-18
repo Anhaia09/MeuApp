@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   botaoLimpar: {
-    backgroundColor: '#E74C3C', // Vermelho para destacar
+    backgroundColor: '#8e43fb', // Vermelho para destacar
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',
@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
     flex: 1, // Garante que a lista ocupe o espaço restante
     marginBottom: 80, // Evita que os itens fiquem atrás do footer
   },
-  
 });
 
 export default History;

@@ -27,9 +27,9 @@ const Home = ({despesas, setDespesas}) => {
   const navigation = useNavigation();
 
   const dadosUsuario = {
-    nome: 'Luana',
-    email: 'user@gmail.com',
-    telefone: '(15) 99842-6887',
+    nome: 'José Almeida Lima',
+    email: 'jose@gmail.com',
+    telefone: '(15) 99999-9999',
   };
 
   const dadosCartao = {
