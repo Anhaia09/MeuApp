@@ -1,5 +1,5 @@
-import React, {useState, useContext} from 'react';
-import {SaldoContext} from '../../contexts/SaldoContext';
+import React, {useState } from 'react';
+import useBalance from '../../hooks/useBalance'; // Importa o hook de saldo
 import {
   Modal,
   View,
@@ -8,7 +8,7 @@ import {
   Text,
   Alert,
 } from 'react-native';
-import {validarValor} from '../../utils/validation'; // Importa a função de validação
+import {handleChangeText, validarValor} from '../../utils/validation'; // Importa a função de validação
 import styles from './AdicionarDespesaModal.styles'; // Importa os estilos
 import {validarData} from '../../utils/validateData'; // Importa a função de validação
 import {storage} from '../../services/storage'; // Importa o módulo de armazenamento
@@ -25,7 +25,7 @@ const AdicionarDespesaModal = ({
   const [novaData, setNovaData] = useState('');
   const [novoEstabelecimento, setNovoEstabelecimento] = useState('');
   const [novoMetodoPagamento, setNovoMetodoPagamento] = useState('');
-  const {saldo, setSaldo} = useContext(SaldoContext);
+  const { saldo, atualizarSaldo } = useBalance(); // Importa a função para atualizar o saldo
   const [successoModalVisible, setSuccessoModalVisible] = useState(false); // Estado para controlar a visibilidade do modal de sucesso
 
   // Função para formatar a data no formato DD/MM/YYYY enquanto o usuário digita
@@ -64,11 +64,10 @@ const AdicionarDespesaModal = ({
 
       // Atualizando o estado
       setDespesas(updatedExpenses);
-      console.log('updatedExpenses:', updatedExpenses);
 
       // Atualizando saldo
-      const novoSaldo = saldo - novaDespesa.valor;
-      setSaldo(novoSaldo);
+      const newBalance = saldo - novaDespesa.valor;
+      atualizarSaldo(newBalance);
 
       // Exibe o modal de sucesso
       setSuccessoModalVisible(true);
@@ -154,7 +153,7 @@ const AdicionarDespesaModal = ({
               placeholderTextColor="#7F8C8D"
               keyboardType="numeric"
               value={novoValor}
-              onChangeText={setNovoValor}
+              onChangeText={(text) => {handleChangeText(text, setNovoValor);}}
             />
             <TextInput
               style={styles.input}

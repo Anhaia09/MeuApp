@@ -1,5 +1,5 @@
 import React, {useState, useContext} from 'react';
-import {SaldoContext} from '../contexts/SaldoContext';
+import useBalance from '../hooks/useBalance';
 
 import {
   View,
@@ -21,7 +21,7 @@ const Home = ({despesas, setDespesas}) => {
   const [modalUsuarioVisible, setModalUsuarioVisible] = useState(false);
   const [modalDepositoVisible, setModalDepositoVisible] = useState(false);
 
-  const {saldo, setSaldo} = useContext(SaldoContext);
+  const { saldo } = useBalance();
 
   // Hook para navegação entre telas
   const navigation = useNavigation();
@@ -103,14 +103,15 @@ const Home = ({despesas, setDespesas}) => {
         {/* Exibindo histórico de despesas */}
         <View style={styles.despesasContainer}>
           <Text style={styles.tituloDespesas}>Despesas</Text>
-          {despesas.slice(0, 2).map(despesa => (
-            <View key={despesa.id} style={styles.itemDespesa}>
-              <Text style={styles.descricaoDespesa}>{despesa.descricao}</Text>
-              <Text style={styles.valorDespesa}>
-                R$ {despesa.valor.toFixed(2)}
-              </Text>
-            </View>
-          ))}
+          {despesas?.length > 0 &&
+            despesas.slice(0, 2).map(despesa => (
+              <View key={despesa.id} style={styles.itemDespesa}>
+                <Text style={styles.descricaoDespesa}>{despesa.descricao}</Text>
+                <Text style={styles.valorDespesa}>
+                  R$ {despesa.valor.toFixed(2)}
+                </Text>
+              </View>
+            ))}
         </View>
       </ScrollView>
 

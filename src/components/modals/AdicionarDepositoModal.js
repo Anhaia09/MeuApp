@@ -8,39 +8,56 @@ import {
   Alert,
 } from 'react-native';
 import styles from './AdicionarDespesaModal.styles'; // Importa os estilos
-import {SaldoContext} from '../../contexts/SaldoContext'; // Importa o contexto de saldo
+import useBalance from '../../hooks/useBalance';
+import { storage } from '../../services/storage';
+import { handleChangeText } from '../../utils/validation';
 
 const AdicionarDepositoModal = ({
   modalDepositoVisible,
   setModalDepositoVisible,
 }) => {
-  const [novoValor, setNovoValor] = useState('');
-  const {saldo, setSaldo} = useContext(SaldoContext);
+  const [value, setValue] = useState('');
+  const { atualizarSaldo } = useBalance();
   const [successoModalVisible, setSuccessoModalVisible] = useState(false);
+  
 
   // Função para adicionar depósito
   const adicionarDeposito = () => {
     // Verifica se a entrada contém apenas números e ponto decimal
-    if (!/^\d+(\.\d+)?$/.test(novoValor)) {
+    if (!/^\d+(\.\d+)?$/.test(value)) {
       Alert.alert('Valor inválido', 'Por favor, insira um número válido.');
-      setNovoValor(''); // Limpa o campo
+      setValue(''); // Limpa o campo
       return;
     }
 
-    const valor = parseFloat(novoValor);
+    const newDeposit = parseFloat(value);
+    
 
-    if (isNaN(valor) || valor <= 0) {
+    if (isNaN(newDeposit) || newDeposit <= 0) {
       Alert.alert(
         'Valor inválido',
         'Por favor, insira um número maior que zero.',
       );
-      setNovoValor(''); // Limpa o campo
+      setValue(''); // Limpa o campo
       return;
     }
 
-    // Se o valor for válido, atualiza o saldo
-    setSaldo(saldo + valor);
-    setNovoValor(''); // Limpa o campo
+    // Obtendo saldo salvo no MMKV
+
+    const existingBalance = storage.getString('balance');
+    
+    const parsedBalance = existingBalance ? JSON.parse(existingBalance) : 0;
+
+    // Adicionando nova despesa com ID
+    const updatedBalance = parsedBalance + newDeposit;
+    setValue(''); // Limpa o campo
+
+    // Salvando no MMKV
+    storage.set('balance', JSON.stringify(updatedBalance));
+
+    // Atualizando o estado
+    atualizarSaldo(updatedBalance);
+    
     setModalDepositoVisible(false); // Fecha o modal de depósito
     setSuccessoModalVisible(true); // Exibe o modal de sucesso
   };
@@ -60,8 +77,8 @@ const AdicionarDepositoModal = ({
               placeholder="Valor (R$)"
               placeholderTextColor="#7F8C8D"
               keyboardType="numeric"
-              value={novoValor}
-              onChangeText={setNovoValor}
+              value={value}
+              onChangeText={(text) => handleChangeText(text, setValue)}
             />
 
             <TouchableOpacity
