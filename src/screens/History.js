@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
-  Image,
   FlatList,
 } from 'react-native';
 import {storage} from '../services/storage';
